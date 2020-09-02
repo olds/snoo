@@ -168,6 +168,7 @@ class Client:
                 "account_sid": "",
                 "auth_token": "",
                 "phone_nums": "",
+                "twiliophone": "",
             }
         self.twilio = self._config["twilio"]
 
