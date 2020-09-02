@@ -4,7 +4,6 @@ import getpass
 import configparser
 import xdg.BaseDirectory
 import os
-import json
 from twilio.rest import Client as TwilioClient
 
 
@@ -242,7 +241,7 @@ class Client:
     def phone_nums(self):
         if not self.twilio["phone_nums"]:
             self.twilio["phone_nums"] = input("Phone numbers to call ")
-        return json.loads(self.twilio["phone_nums"])
+        return self.twilio["phone_nums"].split(",")
 
 
     def get_token(self):
