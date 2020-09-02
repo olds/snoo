@@ -4,6 +4,8 @@ import getpass
 import configparser
 import xdg.BaseDirectory
 import os
+import json
+from twilio.rest import Client as TwilioClient
 
 
 class APIError(Exception):
@@ -161,6 +163,14 @@ class Client:
             }
         self.session = self._config["session"]
 
+        if "twilio" not in self._config:
+            self._config["twilio"] = {
+                "account_sid": "",
+                "auth_token": "",
+                "phone_nums": "",
+            }
+        self.twilio = self._config["twilio"]
+
     def save(self):
         with open(self.config_path, "w") as configfile:
             self._config.write(configfile)
@@ -208,6 +218,31 @@ class Client:
         if not self.auth["password"]:
             self.auth["password"] = getpass.getpass()
         return self.auth["password"]
+
+    @property
+    def twilioaccount(self):
+        if not self.twilio["account_sid"]:
+            self.twilio["account_sid"] = input("Twilio Account SID: ")
+        return self.twilio["account_sid"]
+
+    @property
+    def twiliotoken(self):
+        if not self.twilio["auth_token"]:
+            self.twilio["auth_token"] = input("Twilio Auth Token: ")
+        return self.twilio["auth_token"]
+
+    @property
+    def twiliophone(self):
+        if not self.twilio["twiliophone"]:
+            self.twilio["twiliophone"] = input("Twilio Phone Num: ")
+        return self.twilio["twiliophone"]
+
+    @property
+    def phone_nums(self):
+        if not self.twilio["phone_nums"]:
+            self.twilio["phone_nums"] = input("Phone numbers to call ")
+        return json.loads(self.twilio["phone_nums"])
+
 
     def get_token(self):
         if self.auth["token"] and arrow.get(self.auth["token_expiry"]) > arrow.utcnow():
@@ -303,3 +338,21 @@ class Client:
         else:
             status = "Soothing"
         return f"{status} {Client._humanize(session['duration'])}"
+
+    def raw_status(self):
+        session = self.get_current_session()
+        level = session["level"]
+        return f"{level}"
+
+    def call_parent(self):
+        account_sid = self.twilioaccount
+        auth_token = self.twiliotoken
+        client = TwilioClient(account_sid, auth_token)
+
+        for phone_num in self.phone_nums:
+            call = client.calls.create(
+                twiml='<Response><Say>Time to get Seamus!</Say></Response>',
+                to=phone_num,
+                from_=self.twiliophone
+            )
+            print(call.sid)
