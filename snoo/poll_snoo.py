@@ -3,9 +3,12 @@ import time
 
 def main():
     snoo = SnooClient()
-    last_call = '2000 01-01-01 00:00:00'
+    last_status = "ONLINE"
 
     while True:
+        if snoo.raw_status() != last_status:
+            snoo.text_parent(last_status, snoo.raw_status())
+            last_status = snoo.raw_status()
         if snoo.raw_status() == "TIMEOUT":
             snoo.call_parent()
         time.sleep(60)

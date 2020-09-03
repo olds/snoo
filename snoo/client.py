@@ -356,3 +356,17 @@ class Client:
                 from_=self.twiliophone
             )
             print(call.sid)
+
+    def text_parent(self, old_status, new_status):
+        account_sid = self.twilioaccount
+        auth_token = self.twiliotoken
+        client = TwilioClient(account_sid, auth_token)
+        message = "Seamus' Snoo just changed from %s to %s" % (old_status, new_status)
+
+        for phone_num in self.phone_nums:
+            msg = client.messages.create(
+                body=message,
+                to=phone_num,
+                from_=self.twiliophone
+            )
+            print(msg.sid)
