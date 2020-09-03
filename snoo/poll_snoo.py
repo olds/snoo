@@ -11,7 +11,7 @@ def main():
             last_status = snoo.raw_status()
         if snoo.raw_status() == "TIMEOUT":
             snoo.call_parent()
-        time.sleep(60)
+        time.sleep(10)
 
 if __name__ == "__main__":
     main()
