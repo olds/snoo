@@ -297,8 +297,12 @@ class Client:
                 > arrow.utcnow()
             ):
                 return self.session
+        try:
+            data = self.request(self.CURRENT_ENDPOINT)
+        except APIError:
+            self.get_token()
+            data = self.request(self.CURRENT_ENDPOINT)
 
-        data = self.request(self.CURRENT_ENDPOINT)
         start_time = arrow.get(data["startTime"])
         end_time = arrow.get(data["endTime"]) if data["endTime"] else ""
         now = arrow.utcnow()
