@@ -244,8 +244,9 @@ class Client:
         return self.twilio["phone_nums"].split(",")
 
 
-    def get_token(self):
-        if self.auth["token"] and arrow.get(self.auth["token_expiry"]) > arrow.utcnow():
+    def get_token(self, force_refresh=False):
+        if self.auth["token"] and arrow.get(self.auth["token_expiry"]) > arrow.utcnow() and \
+                not force_refresh:
             return self.auth["token"]
 
         payload = {"username": self.username, "password": self.password}
@@ -300,7 +301,7 @@ class Client:
         try:
             data = self.request(self.CURRENT_ENDPOINT)
         except APIError:
-            self.get_token()
+            self.get_token(force_refresh=True)
             data = self.request(self.CURRENT_ENDPOINT)
 
         start_time = arrow.get(data["startTime"])
